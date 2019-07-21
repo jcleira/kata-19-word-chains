@@ -3,6 +3,7 @@ package words
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 )
 
@@ -14,7 +15,7 @@ import (
 // main operations on the http package. I'm used to that pattern for my packages
 // and words.Client will provide all word's features needed for the Kata.
 type Client struct {
-	Words []Word
+	Words []*Word
 }
 
 // NewClient loads a feed of words, an initialize them.
@@ -26,13 +27,13 @@ type Client struct {
 // Returns a reference to the created Client or an error if any.
 func NewClient(words io.Reader) (*Client, error) {
 	client := &Client{
-		Words: []Word{},
+		Words: []*Word{},
 	}
 
 	scanner := bufio.NewScanner(words)
 	for scanner.Scan() {
 		// TODO - Word would need its own constructor
-		client.Words = append(client.Words, Word{Term: scanner.Text()})
+		client.Words = append(client.Words, &Word{Term: scanner.Text()})
 	}
 
 	if len(client.Words) == 0 {
@@ -44,8 +45,51 @@ func NewClient(words io.Reader) (*Client, error) {
 	}
 
 	for i := 0; i < len(client.Words); i++ {
-		client.Words[i].Link(client.Words)
+		go client.Words[i].Link(client.Words)
 	}
 
 	return client, nil
+}
+
+// GetChain will perform a chain lookup from start to end words.
+//
+// It will return an []string with the word chain if it does find the path
+// between those two words, otherwise it will return one of the following
+// errors:
+//
+// - The start word is not found on the dictionary.
+// - The end word is not found on the dictionary.
+// - There is no chain between the two words.
+func (c *Client) GetChain(start, end string) ([]string, error) {
+	var startWord, endWord *Word
+
+	for i := 0; i < len(c.Words); i++ {
+		if c.Words[i].Term == start {
+			startWord = c.Words[i]
+			break
+		}
+	}
+
+	if startWord == nil {
+		return nil, fmt.Errorf("error, start word '%s' not found", start)
+	}
+
+	for i := 0; i < len(c.Words); i++ {
+		if c.Words[i].Term == end {
+			endWord = c.Words[i]
+			break
+		}
+	}
+
+	if endWord == nil {
+		return nil, fmt.Errorf("error, end word '%s' not found", end)
+	}
+
+	traverse := &Traverse{
+		StartWord: startWord,
+		EndWord:   endWord,
+		Results:   make(chan Chain),
+	}
+
+	return traverse.Perform()
 }
