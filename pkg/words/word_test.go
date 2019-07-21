@@ -6,29 +6,28 @@ import (
 )
 
 func TestLink(t *testing.T) {
-
 	tests := []struct {
 		Description         string
 		Word                Word
-		Words               []Word
-		ExpectedLinkedWords []Word
+		Words               []*Word
+		ExpectedLinkedWords []*Word
 	}{
 		{
 			Description: "when words succesfully links to other words",
 			Word:        Word{Term: "foo"},
-			Words: []Word{
-				Word{Term: "foo"},
-				Word{Term: "bar"},
-				Word{Term: "foe"},
-				Word{Term: "boo"},
-				Word{Term: "feo"},
-				Word{Term: "foobar"},
-				Word{Term: "barfoo"},
+			Words: []*Word{
+				&Word{Term: "foo"},
+				&Word{Term: "bar"},
+				&Word{Term: "foe"},
+				&Word{Term: "boo"},
+				&Word{Term: "feo"},
+				&Word{Term: "foobar"},
+				&Word{Term: "barfoo"},
 			},
-			ExpectedLinkedWords: []Word{
-				Word{Term: "foe"},
-				Word{Term: "boo"},
-				Word{Term: "feo"},
+			ExpectedLinkedWords: []*Word{
+				&Word{Term: "foe"},
+				&Word{Term: "boo"},
+				&Word{Term: "feo"},
 			},
 		},
 	}

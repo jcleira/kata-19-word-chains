@@ -3,7 +3,7 @@ package words
 // Word represents an unique real world word.
 type Word struct {
 	Term        string
-	LinkedWords []Word
+	LinkedWords []*Word
 }
 
 // Link would seek linked words for the given word on a word's dictionary.
@@ -12,9 +12,9 @@ type Word struct {
 // from the given word.
 //
 // TODO: Link should cleanup any previous Link call.
-func (w *Word) Link(words []Word) {
+func (w *Word) Link(words []*Word) {
 	for i := 0; i < len(words); i++ {
-		if w.isLinkable(words[i]) {
+		if w.isLinkable(*words[i]) {
 			w.LinkedWords = append(w.LinkedWords, words[i])
 		}
 	}
@@ -50,9 +50,9 @@ func (w *Word) isLinkable(word Word) bool {
 
 		if differences == 1 {
 			return false
-		} else {
-			differences++
 		}
+
+		differences++
 	}
 
 	return true
