@@ -1,0 +1,110 @@
+package words
+
+import (
+	"fmt"
+	"sync"
+)
+
+// TODO: probably chains should not be []string but []Word
+// Chain would keep the word chain between to words
+//
+// Example: for "foo" and "fee" => []string{"foo", "foe", fee}
+type Chain []string
+
+// Traverse represents the chain's search between two words.
+//
+// We would be using a channel (Results channel) in order to provide an unique
+// point to return and process successfull chains. That chain's process will
+// look for the shortest (fewer nodes chain) that will be store on the
+// ShortestChain attribute.
+type Traverse struct {
+	StartWord     *Word
+	EndWord       *Word
+	Results       chan Chain
+	ShortestChain Chain
+
+	sync.Mutex
+}
+
+// Perform starts a Traverse search on the words with the given configuration.
+//
+// It will trigger the recursive traverse.step function that will traverse all
+// the linked words from the start word looking for suitable chains.
+//
+// It will return a suitable Chain if the Traverse's Start and End words are
+// connected, or an error otherwise.
+func (t *Traverse) Perform() ([]string, error) {
+	go t.collectResults()
+
+	t.step(t.StartWord, Chain{})
+
+	t.Lock()
+	defer t.Unlock()
+	defer close(t.Results)
+
+	if t.ShortestChain == nil {
+		return nil, fmt.Errorf("error, no chain found between '%s' and '%s'",
+			t.StartWord.Term, t.EndWord.Term)
+	}
+
+	return t.ShortestChain, nil
+}
+
+// step performs a Traversal step on a word that is long linked with the start
+// word.
+//
+// step currently keeps track of the word in the chain, finalize the chain if the
+// step's word is the end's word or perform new steps for each step word's
+// LinkedWords.
+//
+// step doesn't return anything, it does uses the Traverse.Result channel to
+// provide results if needed.
+func (t *Traverse) step(stepWord *Word, chain Chain) {
+	chain = append(chain, stepWord.Term)
+
+	if stepWord.Term == t.EndWord.Term {
+		t.Results <- chain
+	}
+
+	for i := 0; i < len(stepWord.LinkedWords); i++ {
+
+		// check for any already in chain word in the LinkedWords to avoid infinite
+		// loops
+		alreadyOnChain := false
+		for _, word := range chain {
+			if word == stepWord.LinkedWords[i].Term {
+				alreadyOnChain = true
+				break
+			}
+		}
+		if alreadyOnChain {
+			continue
+		}
+
+		t.step(stepWord.LinkedWords[i], chain)
+	}
+}
+
+// collectResults is executed as goroutine and is an infinite loop that would
+// collect and process Traverse.Result channel messages from the Traverse's
+// steps.
+//
+// The infinite loop will end when the Traverse finalizes all chains.
+func (t *Traverse) collectResults() {
+	for {
+		select {
+		case chain, ok := <-t.Results:
+			if !ok {
+				break
+			}
+
+			t.Lock()
+			if t.ShortestChain == nil {
+				t.ShortestChain = chain
+			} else if len(chain) < len(t.ShortestChain) {
+				t.ShortestChain = chain
+			}
+			t.Unlock()
+		}
+	}
+}
