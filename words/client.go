@@ -31,7 +31,8 @@ func NewClient(words io.Reader) (*Client, error) {
 
 	scanner := bufio.NewScanner(words)
 	for scanner.Scan() {
-		client.Words = append(client.Words, Word{scanner.Text()})
+		// TODO - Word would need its own constructor
+		client.Words = append(client.Words, Word{Term: scanner.Text()})
 	}
 
 	if len(client.Words) == 0 {
@@ -40,6 +41,10 @@ func NewClient(words io.Reader) (*Client, error) {
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
+	}
+
+	for i := 0; i < len(client.Words); i++ {
+		client.Words[i].Link(client.Words)
 	}
 
 	return client, nil
