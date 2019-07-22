@@ -36,8 +36,8 @@ This approach also takes few seconds to find a solution, but given the number wo
 ## Posible next steps
 
 - [ ] TODO - Move onto a full Go concurrency solution.
-- [ ] TODO - Use a more efficient scoring approcach - there are chains that are more likely to produce better results. 
 - [ ] TODO - Use a more efficient math approach.
+- [ ] TODO - Use a more efficient scoring approach, there are chains that are more likely to produce better results. 
 - [ ] TODO - Create a better cli using urfave/cli or cobra.
 
 ## Analysis
