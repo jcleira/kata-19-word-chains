@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 )
 
 // Client is words package core struct, define & containsall the needed
@@ -33,7 +34,7 @@ func NewClient(words io.Reader) (*Client, error) {
 	scanner := bufio.NewScanner(words)
 	for scanner.Scan() {
 		// TODO - Word would need its own constructor
-		client.Words = append(client.Words, &Word{Term: scanner.Text()})
+		client.Words = append(client.Words, &Word{Term: strings.ToLower(scanner.Text())})
 	}
 
 	if len(client.Words) == 0 {
