@@ -89,5 +89,5 @@ There are some Heap scapes but not in the "intesive parts", just on the initiali
 
 I used the trace tool, to check the word initialization, looks like GC and CPU utilization are fine during the process:
 
-[Trace tool](https://i.imgur.com/IOU06rv.png)
+![Trace tool](https://i.imgur.com/IOU06rv.png)
 
