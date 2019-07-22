@@ -53,9 +53,12 @@ func (t *Traverse) Perform() ([]string, error) {
 // step performs a Traversal step on a word that is long linked with the start
 // word.
 //
-// step currently keeps track of the word in the chain, finalize the chain if the
-// step's word is the end's word or perform new steps for each step word's
-// LinkedWords.
+// step currently keeps track of the word in the chain, finalize the chain if
+// the // step's word is the end's word or perform new steps for each step
+// word's LinkedWords.
+//
+// There is a check that before creating a new step for a linked word to
+// confirm that it is not already on the chain.
 //
 // step doesn't return anything, it does uses the Traverse.Result channel to
 // provide results if needed.
@@ -64,12 +67,10 @@ func (t *Traverse) step(stepWord *Word, chain Chain) {
 
 	if stepWord.Term == t.EndWord.Term {
 		t.Results <- chain
+		return
 	}
 
 	for i := 0; i < len(stepWord.LinkedWords); i++ {
-
-		// check for any already in chain word in the LinkedWords to avoid infinite
-		// loops
 		alreadyOnChain := false
 		for _, word := range chain {
 			if word == stepWord.LinkedWords[i].Term {
