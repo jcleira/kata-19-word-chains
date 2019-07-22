@@ -87,7 +87,22 @@ There are some Heap scapes but not in the "intesive parts", just on the initiali
 ```
 ### Trace exploring
 
-I used the trace tool, to check the word initialization, looks like GC and CPU utilization are fine during the process:
+I used the trace tool, to check the dictionary initialization, looks like GC and CPU utilization are fine during the process:
 
 ![Trace tool](https://i.imgur.com/IOU06rv.png)
 
+
+### pprof graphs
+
+I also ran pprof to analyse the performance on the dictionarly initialization and the traverse search.
+
+For the dictionary initialization I discovered the following facts:
+
+- We keep doing repeatedly array growing that we might avoid.
+- The `isLinkable` method looks like taking to much time.
+
+![pprof](https://i.imgur.com/f3esoq6.png)
+
+On the other hand I couldn't find any suitable improvement for the traverse search:
+
+![pprof](https://i.imgur.com/K0aLIXS.png)
