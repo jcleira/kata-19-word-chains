@@ -22,8 +22,6 @@ func TestNewClient(t *testing.T) {
 				Words: []*Word{
 					{Term: "foo"},
 					{Term: "bar"},
-					{Term: "foobar"},
-					{Term: "barfoo"},
 				},
 			},
 		},
