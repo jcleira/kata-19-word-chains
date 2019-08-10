@@ -34,7 +34,13 @@ func NewClient(words io.Reader) (*Client, error) {
 	scanner := bufio.NewScanner(words)
 	for scanner.Scan() {
 		// TODO - Word would need its own constructor
-		client.Words = append(client.Words, &Word{Term: strings.ToLower(scanner.Text())})
+		word := scanner.Text()
+
+		if len(word) != 3 {
+			continue
+		}
+
+		client.Words = append(client.Words, &Word{Term: strings.ToLower(word)})
 	}
 
 	if len(client.Words) == 0 {
