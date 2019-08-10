@@ -2,6 +2,7 @@ package words
 
 import (
 	"fmt"
+	"math"
 	"sync"
 	"time"
 )
@@ -74,6 +75,9 @@ func (t *Traverse) step(stepWord *Word, chain Chain) {
 		return
 	}
 
+	bestScore := math.MaxFloat64
+	var bestLinkedWord *Word
+
 	for i := 0; i < len(stepWord.LinkedWords); i++ {
 		alreadyOnChain := false
 		for _, word := range chain {
@@ -86,8 +90,28 @@ func (t *Traverse) step(stepWord *Word, chain Chain) {
 			continue
 		}
 
-		t.step(stepWord.LinkedWords[i], chain)
+		linkedWordScore := getWordsScore(t.EndWord.Term, stepWord.LinkedWords[i].Term)
+		if bestScore <= linkedWordScore {
+			continue
+		}
+
+		bestScore = linkedWordScore
+		bestLinkedWord = stepWord.LinkedWords[i]
 	}
+
+	if bestLinkedWord == nil {
+		return
+	}
+	t.step(bestLinkedWord, chain)
+}
+
+func getWordsScore(target, current string) float64 {
+	totalScore := .0
+	for i := 0; i < len(current); i++ {
+		totalScore = math.Abs(float64(current[i]) - float64(target[i]))
+	}
+
+	return totalScore
 }
 
 // collectResults is executed as goroutine and is an infinite loop that would
