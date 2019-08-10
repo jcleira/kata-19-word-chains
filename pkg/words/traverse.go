@@ -86,7 +86,11 @@ func (t *Traverse) step(stepWord *Word, chain Chain) {
 			continue
 		}
 
-		t.step(stepWord.LinkedWords[i], chain)
+		stepWord.LinkedWords[i].CalcScore(t.EndWord.Term)
+
+		if stepWord.LinkedWords[i].Score > stepWord.Score {
+			t.step(stepWord.LinkedWords[i], chain)
+		}
 	}
 }
 
