@@ -3,6 +3,7 @@ package words
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 // TODO: probably chains should not be []string but []Word
@@ -37,6 +38,9 @@ func (t *Traverse) Perform() ([]string, error) {
 	go t.collectResults()
 
 	t.step(t.StartWord, Chain{})
+	// TODO this sleep MUST be removed, actually its needed to let the concurrent
+	// code to gather results before exiting.
+	time.Sleep(1 * time.Second)
 
 	t.Lock()
 	defer t.Unlock()
