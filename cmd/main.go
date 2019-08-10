@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime/trace"
 
 	"github.com/jcleira/kata19-word-chains/pkg/words"
 )
@@ -32,11 +31,6 @@ func main() {
 	defer dictionaryFile.Close()
 
 	fmt.Println("Loading dictionary file...")
-
-	f, _ := os.Create("trace.out")
-	defer f.Close()
-	trace.Start(f)
-	defer trace.Stop()
 
 	client, err := words.NewClient(dictionaryFile)
 	if err != nil {
